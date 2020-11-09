@@ -49,7 +49,7 @@ public class SecKillServiceImpl implements SecKillService {
                 Assert.isTrue(goodsService.secKill(Long.valueOf(key)), "库存不足！");
                 OrderEntity orderEntity = new OrderEntity().setGoodsId(Long.valueOf(key)).setOrderNo(UUID.randomUUID().toString().replace("-", ""));
                 Assert.isTrue(orderService.save(orderEntity), "订单创建发生异常～");
-                redisTemplate.opsForValue().set("secKill:" + orderEntity.getId(), orderEntity.getOrderNo(), 25, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set("secKill:" + orderEntity.getId(), orderEntity.getOrderNo(), 10, TimeUnit.SECONDS);
                 return true;
             }).onFailure((e) -> {
                 log.error("持久化异常：" + e.getMessage());
