@@ -14,4 +14,9 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsDao, GoodsEntity> impleme
     public boolean secKill(Long id) {
         return retBool(baseMapper.secKill(id));
     }
+
+    @Override
+    public boolean secKillBack(Long id) {
+        return retBool(baseMapper.secKillBack(id));
+    }
 }

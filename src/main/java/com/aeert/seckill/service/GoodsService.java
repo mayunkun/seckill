@@ -15,5 +15,10 @@ public interface GoodsService extends IService<GoodsEntity> {
      **/
     boolean secKill(Long id);
 
+    /**
+     * 秒杀支付过期返还库存
+     **/
+    boolean secKillBack(Long id);
+
 }
 

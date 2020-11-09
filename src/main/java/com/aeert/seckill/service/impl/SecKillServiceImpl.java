@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service("secKillService")
@@ -46,7 +47,9 @@ public class SecKillServiceImpl implements SecKillService {
             // 下面的数据库操作建议走MQ让数据库按照他的处理能力，从消息队列中拿取消息进行处理。
             Try.of(() -> {
                 Assert.isTrue(goodsService.secKill(Long.valueOf(key)), "库存不足！");
-                Assert.isTrue(orderService.save(new OrderEntity().setGoodsId(Long.valueOf(key)).setOrderNo(UUID.randomUUID().toString().replace("-", ""))), "订单创建发生异常～");
+                OrderEntity orderEntity = new OrderEntity().setGoodsId(Long.valueOf(key)).setOrderNo(UUID.randomUUID().toString().replace("-", ""));
+                Assert.isTrue(orderService.save(orderEntity), "订单创建发生异常～");
+                redisTemplate.opsForValue().set("secKill:" + orderEntity.getId(), orderEntity.getOrderNo(), 25, TimeUnit.SECONDS);
                 return true;
             }).onFailure((e) -> {
                 log.error("持久化异常：" + e.getMessage());

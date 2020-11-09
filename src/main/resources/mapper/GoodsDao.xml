@@ -24,4 +24,13 @@
             AND amount >0
     </update>
 
+    <update id="secKillBack">
+        UPDATE
+            tb_goods
+        SET
+            amount = amount + 1
+        WHERE
+            id = #{id}
+    </update>
+
 </mapper>

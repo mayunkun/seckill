@@ -17,4 +17,9 @@ public interface GoodsDao extends BaseMapper<GoodsEntity> {
      **/
     Integer secKill(Long id);
 
+    /**
+     * 秒杀支付过期返还库存
+     **/
+    Integer secKillBack(Long id);
+
 }
