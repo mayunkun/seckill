@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aeert.seckill.dao.GoodsDao">
+
+    <resultMap type="com.aeert.seckill.entity.GoodsEntity" id="goodsMap">
+        <result property="id" column="id"/>
+        <result property="createDate" column="create_date"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="name" column="name"/>
+        <result property="amount" column="amount"/>
+        <result property="price" column="price"/>
+    </resultMap>
+
+    <update id="secKill">
+        UPDATE
+            tb_goods
+        SET
+            amount = amount - 1
+        WHERE
+            id = #{id}
+            AND amount >0
+    </update>
+
+</mapper>

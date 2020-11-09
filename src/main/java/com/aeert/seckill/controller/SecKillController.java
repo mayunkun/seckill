@@ -1,50 +1,48 @@
 package com.aeert.seckill.controller;
 
+import com.aeert.seckill.service.SecKillService;
+import com.baomidou.mybatisplus.extension.api.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @Author l'amour solitaire
- * @Description redis测试
+ * @Description 秒杀测试
  * @Date 2020/11/4 下午4:21
  **/
-@Api(tags = "redis测试")
+@Api(tags = "秒杀测试")
 @RestController
-@RequestMapping("/redis")
+@RequestMapping("/secKill")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class RedisIncrByController {
-
-    private final RedisTemplate redisTemplate;
+public class SecKillController {
 
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
+    private final SecKillService secKillService;
 
     @ApiOperation("init")
     @GetMapping("init")
-    public String init(@RequestParam String key, @RequestParam Long count) {
-        redisTemplate.delete(key);
-        Long result = redisTemplate.opsForValue().increment(key, count);
-        System.out.println(result);
-        return String.valueOf(redisTemplate.opsForValue().get(key));
+    public R init(@RequestParam String name, @RequestParam Integer amount, @RequestParam BigDecimal price) {
+        return R.ok(secKillService.initGoods(name, amount, price));
     }
 
-    @ApiOperation("test")
-    @GetMapping("test")
-    public void test(@RequestParam String key, @RequestParam Long count, @RequestParam Integer ct) {
+    @ApiOperation("secKill")
+    @GetMapping("secKill")
+    public void secKill(@RequestParam String key, @RequestParam Integer ct) {
         for (int i = 0; i < ct; i++) {
-            CompletableFuture<Long> future = CompletableFuture.supplyAsync(() -> redisTemplate.opsForValue().decrement(key, count), threadPoolTaskExecutor);
+            CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> secKillService.secKill(key), threadPoolTaskExecutor);
             future.whenComplete((r, e) -> {
-                if (r.compareTo(Long.valueOf("0")) > 0) {
-                    System.out.println("抢购成功！当前剩余库存为：" + r);
+                if (r) {
+                    System.out.println("抢购成功！");
                 } else {
                     System.out.println("抢购结束！");
                 }
