@@ -5,7 +5,9 @@ import com.aeert.seckill.entity.OrderEntity;
 import com.aeert.seckill.service.GoodsService;
 import com.aeert.seckill.service.OrderService;
 import com.aeert.seckill.service.SecKillService;
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @Service("secKillService")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class SecKillServiceImpl implements SecKillService {
@@ -41,10 +44,17 @@ public class SecKillServiceImpl implements SecKillService {
         Long result = redisTemplate.opsForValue().decrement("amount:" + key, 1);
         if (result.compareTo(0L) >= 0) {
             // 下面的数据库操作建议走MQ让数据库按照他的处理能力，从消息队列中拿取消息进行处理。
-            Assert.isTrue(goodsService.secKill(Long.valueOf(key)), "库存不足！");
-            Assert.isTrue(orderService.save(new OrderEntity().setGoodsId(Long.valueOf(key)).setOrderNo(UUID.randomUUID().toString().replace("-", ""))), "订单创建发生异常～");
-            return true;
+            Try.of(() -> {
+                Assert.isTrue(goodsService.secKill(Long.valueOf(key)), "库存不足！");
+                Assert.isTrue(orderService.save(new OrderEntity().setGoodsId(Long.valueOf(key)).setOrderNo(UUID.randomUUID().toString().replace("-", ""))), "订单创建发生异常～");
+                return true;
+            }).onFailure((e) -> {
+                log.error("持久化异常：" + e.getMessage());
+                redisTemplate.opsForValue().increment("amount:" + key, 1);
+            });
+            return false;
         }
+        redisTemplate.opsForValue().increment("amount:" + key, 1);
         return false;
     }
 }

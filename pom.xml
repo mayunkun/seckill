@@ -8,6 +8,7 @@
 		<version>2.3.5.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>com.aeert</groupId>
 	<artifactId>seckill</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -19,6 +20,7 @@
 		<swagger.version>2.7.0</swagger.version>
 		<mybatis-plus-boot-starter.version>3.4.0</mybatis-plus-boot-starter.version>
 		<druid-spring-boot-starter.version>1.2.3</druid-spring-boot-starter.version>
+		<vavr.version>0.10.2</vavr.version>
 	</properties>
 
 	<dependencies>
@@ -63,6 +65,12 @@
 			<groupId>com.alibaba</groupId>
 			<artifactId>druid-spring-boot-starter</artifactId>
 			<version>${druid-spring-boot-starter.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.vavr</groupId>
+			<artifactId>vavr</artifactId>
+			<version>${vavr.version}</version>
 		</dependency>
 
 		<dependency>
